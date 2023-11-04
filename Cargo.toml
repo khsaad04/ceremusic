@@ -1,11 +1,15 @@
 [package]
-name = "cerebro_music"
+name = "ceremusic"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+anyhow = "1.0.75"
 poise = "0.5.7"
+shuttle-poise = "0.30.0"
+shuttle-runtime = "0.30.0"
+shuttle-secrets = "0.30.0"
 songbird = { version = "0.3.2", features = ["yt-dlp", "builtin-queue", "serenity", "tokio"] }
 tokio = { version = "1.33.0", features = ["rt-multi-thread"] }

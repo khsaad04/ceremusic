@@ -1,17 +1,21 @@
 mod commands;
 
+use anyhow::Context as _;
 use poise::serenity_prelude as serenity;
+use shuttle_poise::ShuttlePoise;
+use shuttle_secrets::SecretStore;
 use songbird::SerenityInit;
 
 pub struct Data {}
 pub type Error = Box<dyn std::error::Error + Send + Sync>;
 pub type Context<'a> = poise::Context<'a, Data, Error>;
 
-use commands::{help::*, play::*};
+use commands::{help::*, leave::*, play::*};
 
-#[tokio::main]
-async fn main() {
-    let discord_token = std::env::var("TOKEN_MUSIC").unwrap();
+#[shuttle_runtime::main]
+async fn poise(#[shuttle_secrets::Secrets] secret_store: SecretStore) -> ShuttlePoise<Data, Error> {
+    // Get the discord token set in `Secrets.toml`
+    let discord_token = secret_store.get("TOKEN").context("TOKEN' was not found")?;
 
     let framework = poise::Framework::builder()
         .token(discord_token)
@@ -21,7 +25,7 @@ async fn main() {
                 case_insensitive_commands: true,
                 ..Default::default()
             },
-            commands: vec![help(), play()],
+            commands: vec![help(), play(), leave()],
             ..Default::default()
         })
         .intents(
@@ -34,6 +38,10 @@ async fn main() {
                 poise::builtins::register_globally(ctx, &framework.options().commands).await?;
                 Ok(Data {})
             })
-        });
-    framework.run().await.unwrap();
+        })
+        .build()
+        .await
+        .map_err(shuttle_runtime::CustomError::new)?;
+
+    Ok(framework.into())
 }
