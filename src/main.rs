@@ -14,6 +14,21 @@ use commands::{help::*, leave::*, play::*};
 
 #[shuttle_runtime::main]
 async fn poise(#[shuttle_secrets::Secrets] secret_store: SecretStore) -> ShuttlePoise<Data, Error> {
+    if std::env::var("HOSTNAME")
+        .unwrap_or_default()
+        .contains("shuttle")
+    {
+        if !std::process::Command::new("apt")
+            .arg("install")
+            .arg("-y")
+            .arg("yt-dlp")
+            .status()
+            .expect("failed to run apt")
+            .success()
+        {
+            panic!("failed to install dependencies")
+        }
+    }
     // Get the discord token set in `Secrets.toml`
     let discord_token = secret_store.get("TOKEN").context("TOKEN' was not found")?;
 
