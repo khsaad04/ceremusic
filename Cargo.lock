@@ -275,6 +275,7 @@ dependencies = [
  "shuttle-secrets",
  "songbird",
  "tokio",
+ "tracing",
 ]
 
 [[package]]
