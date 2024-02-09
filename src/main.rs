@@ -2,18 +2,25 @@ mod commands;
 
 use anyhow::Context as _;
 use poise::serenity_prelude as serenity;
-use shuttle_poise::ShuttlePoise;
+use reqwest::Client as HttpClient;
 use shuttle_secrets::SecretStore;
+use shuttle_serenity::ShuttleSerenity;
+use songbird::typemap::TypeMapKey;
 use songbird::SerenityInit;
+
+use commands::{help::*, leave::*, play::*};
 
 pub struct Data {}
 pub type Error = Box<dyn std::error::Error + Send + Sync>;
 pub type Context<'a> = poise::Context<'a, Data, Error>;
 
-use commands::{help::*, leave::*, play::*};
+struct HttpKey;
+impl TypeMapKey for HttpKey {
+    type Value = HttpClient;
+}
 
 #[shuttle_runtime::main]
-async fn poise(#[shuttle_secrets::Secrets] secret_store: SecretStore) -> ShuttlePoise<Data, Error> {
+async fn poise(#[shuttle_secrets::Secrets] secret_store: SecretStore) -> ShuttleSerenity {
     if std::env::var("HOSTNAME")
         .unwrap_or_default()
         .contains("shuttle")
@@ -31,7 +38,6 @@ async fn poise(#[shuttle_secrets::Secrets] secret_store: SecretStore) -> Shuttle
     let discord_token = secret_store.get("TOKEN").context("TOKEN' was not found")?;
 
     let framework = poise::Framework::builder()
-        .token(discord_token)
         .options(poise::FrameworkOptions {
             prefix_options: poise::PrefixFrameworkOptions {
                 prefix: Some("m!".into()),
@@ -41,10 +47,6 @@ async fn poise(#[shuttle_secrets::Secrets] secret_store: SecretStore) -> Shuttle
             commands: vec![help(), play(), leave()],
             ..Default::default()
         })
-        .intents(
-            serenity::GatewayIntents::non_privileged() | serenity::GatewayIntents::MESSAGE_CONTENT,
-        )
-        .client_settings(|builder| builder.register_songbird())
         .setup(|ctx, _ready, framework| {
             Box::pin(async move {
                 println!("Logged in as {}", _ready.user.name);
@@ -52,9 +54,17 @@ async fn poise(#[shuttle_secrets::Secrets] secret_store: SecretStore) -> Shuttle
                 Ok(Data {})
             })
         })
-        .build()
-        .await
-        .map_err(shuttle_runtime::CustomError::new)?;
+        .build();
 
-    Ok(framework.into())
+    let client = serenity::ClientBuilder::new(
+        discord_token,
+        serenity::GatewayIntents::non_privileged() | serenity::GatewayIntents::MESSAGE_CONTENT,
+    )
+    .framework(framework)
+    .register_songbird()
+    .type_map_insert::<HttpKey>(HttpClient::new())
+    .await
+    .map_err(shuttle_runtime::CustomError::new)?;
+
+    Ok(client.into())
 }
