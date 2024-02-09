@@ -10,6 +10,7 @@
     pkgs = nixpkgs.legacyPackages.${system};
   in {
     devShells.x86_64-linux.default = pkgs.mkShell {
+      buildInputs = with pkgs; [yt-dlp libopus];
       nativeBuildInputs = with pkgs; [
         cmake
         openssl
