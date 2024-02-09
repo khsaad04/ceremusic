@@ -44,7 +44,7 @@ async fn poise(#[shuttle_secrets::Secrets] secret_store: SecretStore) -> Shuttle
                 case_insensitive_commands: true,
                 ..Default::default()
             },
-            commands: vec![help(), play(), leave()],
+            commands: vec![help(), play(), join(), leave()],
             ..Default::default()
         })
         .setup(|ctx, _ready, framework| {
