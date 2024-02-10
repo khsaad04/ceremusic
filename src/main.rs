@@ -8,7 +8,7 @@ use shuttle_serenity::ShuttleSerenity;
 use songbird::typemap::TypeMapKey;
 use songbird::SerenityInit;
 
-use commands::{help::*, leave::*, play::*};
+use commands::{help::*, join::*, leave::*, play::*};
 
 pub struct Data {}
 pub type Error = Box<dyn std::error::Error + Send + Sync>;
