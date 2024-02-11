@@ -8,7 +8,7 @@ use shuttle_serenity::ShuttleSerenity;
 use songbird::typemap::TypeMapKey;
 use songbird::SerenityInit;
 
-use commands::{help::*, join::*, leave::*, play::*};
+use commands::{help::*, leave::*, play::*};
 
 pub struct Data {}
 pub type Error = Box<dyn std::error::Error + Send + Sync>;
@@ -44,7 +44,7 @@ async fn poise(#[shuttle_secrets::Secrets] secret_store: SecretStore) -> Shuttle
                 case_insensitive_commands: true,
                 ..Default::default()
             },
-            commands: vec![help(), play(), join(), leave()],
+            commands: vec![help(), play(), leave()],
             ..Default::default()
         })
         .setup(|ctx, _ready, framework| {
