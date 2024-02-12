@@ -1,20 +1,22 @@
 mod commands;
+mod utils;
 
 use anyhow::Context as _;
 use poise::serenity_prelude as serenity;
 use reqwest::Client as HttpClient;
 use shuttle_secrets::SecretStore;
 use shuttle_serenity::ShuttleSerenity;
-use songbird::typemap::TypeMapKey;
-use songbird::SerenityInit;
+use songbird::{typemap::TypeMapKey, SerenityInit};
 
-use commands::{help::*, leave::*, play::*};
+use commands::{help::*, join::*, leave::*, play::*};
+use utils::error::on_error;
 
 pub struct Data {}
 pub type Error = Box<dyn std::error::Error + Send + Sync>;
 pub type Context<'a> = poise::Context<'a, Data, Error>;
 
 struct HttpKey;
+
 impl TypeMapKey for HttpKey {
     type Value = HttpClient;
 }
@@ -34,6 +36,7 @@ async fn poise(#[shuttle_secrets::Secrets] secret_store: SecretStore) -> Shuttle
     {
         panic!("failed to install dependencies")
     }
+
     // Get the discord token set in `Secrets.toml`
     let discord_token = secret_store.get("TOKEN").context("TOKEN' was not found")?;
 
@@ -44,7 +47,8 @@ async fn poise(#[shuttle_secrets::Secrets] secret_store: SecretStore) -> Shuttle
                 case_insensitive_commands: true,
                 ..Default::default()
             },
-            commands: vec![help(), play(), leave()],
+            commands: vec![help(), play(), join(), leave()],
+            on_error: |error| Box::pin(on_error(error)),
             ..Default::default()
         })
         .setup(|ctx, _ready, framework| {

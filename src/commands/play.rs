@@ -1,5 +1,5 @@
 use crate::{Context, Error, HttpKey};
-use songbird::input::YoutubeDl;
+use songbird::input::{Compose, YoutubeDl};
 
 /// Play music
 #[poise::command(prefix_command, slash_command)]
@@ -9,21 +9,18 @@ pub async fn play(
     #[description = "The song you want to play"]
     query: String,
 ) -> Result<(), Error> {
-    let (guild_id, channel_id) = {
-        let guild = ctx.guild().unwrap();
-        let channel_id = guild
-            .voice_states
-            .get(&ctx.author().id)
-            .and_then(|voice_state| voice_state.channel_id);
-
-        (guild.id, channel_id)
-    };
+    let guild_id = ctx.guild_id().unwrap();
+    let channel_id = ctx
+        .guild()
+        .unwrap()
+        .voice_states
+        .get(&ctx.author().id)
+        .and_then(|voice_state| voice_state.channel_id);
 
     let connect_to = match channel_id {
         Some(channel) => channel,
         None => {
             ctx.say("You must be in a voice channel first").await?;
-
             return Ok(());
         }
     };
@@ -44,13 +41,16 @@ pub async fn play(
         let mut handler = handler_lock.lock().await;
 
         let src = YoutubeDl::new(http_client, query);
-        println!("{:?}", src);
+        let metadata = src.clone().aux_metadata().await;
 
-        let _ = handler.play_input(src.clone().into());
+        let _ = handler.enqueue_input(src.clone().into()).await;
 
-        ctx.say("Playing song").await?;
-    } else {
-        ctx.say("Not in a vc!").await?;
+        if let Ok(data) = metadata {
+            ctx.say(format!("Added `{}` to queue.", data.title.unwrap()))
+                .await?;
+        } else {
+            ctx.say("Invalid input").await?;
+        }
     }
 
     Ok(())
