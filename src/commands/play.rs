@@ -1,4 +1,5 @@
 use crate::{Context, Error, HttpKey};
+use poise::{serenity_prelude as serenity, CreateReply};
 use songbird::{
     input::{AuxMetadata, Input, YoutubeDl},
     typemap::TypeMapKey,
@@ -18,6 +19,7 @@ pub async fn play(
     #[description = "The music you want to play"]
     query: String,
 ) -> Result<(), Error> {
+    let msg = ctx.say("Adding song...").await?;
     let guild_id = ctx.guild_id().unwrap();
     let channel_id = ctx
         .guild()
@@ -51,7 +53,17 @@ pub async fn play(
 
     let src = YoutubeDl::new(http_client, query);
     let mut input: Input = src.into();
+
     let metadata = input.aux_metadata().await?;
+
+    msg.edit(
+        ctx,
+        CreateReply::default().content(format!(
+            "Added `{}` to queue.",
+            metadata.title.as_ref().unwrap()
+        )),
+    )
+    .await?;
 
     let track_handle = handler.enqueue_input(input).await;
 
@@ -60,9 +72,6 @@ pub async fn play(
         .write()
         .await
         .insert::<TrackMetaKey>(metadata.clone());
-
-    ctx.say(format!("Added `{}` to queue.", metadata.title.unwrap()))
-        .await?;
 
     Ok(())
 }
