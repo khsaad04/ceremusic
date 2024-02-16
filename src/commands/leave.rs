@@ -13,7 +13,6 @@ pub async fn leave(ctx: Context<'_>) -> Result<(), Error> {
         if let Err(e) = manager.remove(ctx.guild_id().unwrap()).await {
             ctx.say(format!("Failed: {:?}", e)).await?;
         }
-
         ctx.say("Left voice channel").await?;
     } else {
         ctx.say("Not in a voice channel").await?;

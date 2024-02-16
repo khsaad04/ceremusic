@@ -1,12 +1,21 @@
 use crate::{Context, Error, HttpKey};
-use songbird::input::{Compose, YoutubeDl};
+use songbird::{
+    input::{AuxMetadata, Input, YoutubeDl},
+    typemap::TypeMapKey,
+};
+
+pub struct TrackMetaKey;
+
+impl TypeMapKey for TrackMetaKey {
+    type Value = AuxMetadata;
+}
 
 /// Play music
 #[poise::command(prefix_command, slash_command)]
 pub async fn play(
     ctx: Context<'_>,
     #[rest = true]
-    #[description = "The song you want to play"]
+    #[description = "The music you want to play"]
     query: String,
 ) -> Result<(), Error> {
     let guild_id = ctx.guild_id().unwrap();
@@ -17,7 +26,7 @@ pub async fn play(
         .get(&ctx.author().id)
         .and_then(|voice_state| voice_state.channel_id);
 
-    let connect_to = match channel_id {
+    let vc = match channel_id {
         Some(channel) => channel,
         None => {
             ctx.say("You must be in a voice channel first").await?;
@@ -37,20 +46,23 @@ pub async fn play(
             .expect("Guaranteed to exist in the typemap.")
     };
 
-    if let Ok(handler_lock) = manager.join(guild_id, connect_to).await {
+    if let Ok(handler_lock) = manager.join(guild_id, vc).await {
         let mut handler = handler_lock.lock().await;
 
         let src = YoutubeDl::new(http_client, query);
-        let metadata = src.clone().aux_metadata().await;
+        let mut input: Input = src.into();
+        let metadata = input.aux_metadata().await?;
 
-        let _ = handler.enqueue_input(src.clone().into()).await;
+        let track_handle = handler.enqueue_input(input).await;
 
-        if let Ok(data) = metadata {
-            ctx.say(format!("Added `{}` to queue.", data.title.unwrap()))
-                .await?;
-        } else {
-            ctx.say("Invalid input").await?;
-        }
+        track_handle
+            .typemap()
+            .write()
+            .await
+            .insert::<TrackMetaKey>(metadata.clone());
+
+        ctx.say(format!("Added `{}` to queue.", metadata.title.unwrap()))
+            .await?;
     }
 
     Ok(())
