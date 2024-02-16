@@ -7,6 +7,7 @@ pub async fn leave(ctx: Context<'_>) -> Result<(), Error> {
         .await
         .expect("Songbird Voice client placed in at initialisation.")
         .clone();
+
     let has_handler = manager.get(ctx.guild_id().unwrap()).is_some();
 
     if has_handler {

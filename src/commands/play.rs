@@ -46,24 +46,23 @@ pub async fn play(
             .expect("Guaranteed to exist in the typemap.")
     };
 
-    if let Ok(handler_lock) = manager.join(guild_id, vc).await {
-        let mut handler = handler_lock.lock().await;
+    let handler_lock = manager.join(guild_id, vc).await?;
+    let mut handler = handler_lock.lock().await;
 
-        let src = YoutubeDl::new(http_client, query);
-        let mut input: Input = src.into();
-        let metadata = input.aux_metadata().await?;
+    let src = YoutubeDl::new(http_client, query);
+    let mut input: Input = src.into();
+    let metadata = input.aux_metadata().await?;
 
-        let track_handle = handler.enqueue_input(input).await;
+    let track_handle = handler.enqueue_input(input).await;
 
-        track_handle
-            .typemap()
-            .write()
-            .await
-            .insert::<TrackMetaKey>(metadata.clone());
+    track_handle
+        .typemap()
+        .write()
+        .await
+        .insert::<TrackMetaKey>(metadata.clone());
 
-        ctx.say(format!("Added `{}` to queue.", metadata.title.unwrap()))
-            .await?;
-    }
+    ctx.say(format!("Added `{}` to queue.", metadata.title.unwrap()))
+        .await?;
 
     Ok(())
 }

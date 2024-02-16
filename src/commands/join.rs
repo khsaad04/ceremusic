@@ -24,6 +24,6 @@ pub async fn join(ctx: Context<'_>) -> Result<(), Error> {
         .expect("Songbird Voice client placed in at initialisation.")
         .clone();
 
-    let _ = manager.join(guild_id, vc).await;
+    let _ = manager.join(guild_id, vc).await?;
     Ok(())
 }
