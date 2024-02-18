@@ -12,12 +12,12 @@ impl TypeMapKey for TrackMetaKey {
 }
 
 /// Play music
-#[poise::command(prefix_command, slash_command)]
+#[poise::command(prefix_command, slash_command, aliases("p"))]
 pub async fn play(
     ctx: Context<'_>,
     #[rest = true]
     #[description = "The music you want to play"]
-    query: String,
+    query: Option<String>,
 ) -> Result<(), Error> {
     let msg = ctx.say("Adding song...").await?;
     let guild_id = ctx.guild_id().unwrap();
@@ -50,6 +50,20 @@ pub async fn play(
 
     let handler_lock = manager.join(guild_id, vc).await?;
     let mut handler = handler_lock.lock().await;
+
+    let query = match query {
+        Some(query) => query,
+        None => {
+            let _ = match handler.queue().current() {
+                Some(track) => track.play(),
+                None => {
+                    ctx.say("Must provide a url/song query").await?;
+                    return Ok(());
+                }
+            };
+            return Ok(());
+        }
+    };
 
     let src = if query.starts_with("http") {
         YoutubeDl::new(http_client, query)
