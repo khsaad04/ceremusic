@@ -55,7 +55,14 @@ pub async fn play(
         Some(query) => query,
         None => {
             let _ = match handler.queue().current() {
-                Some(track) => track.play(),
+                Some(track) => {
+                    track.play();
+                    msg.edit(
+                        ctx,
+                        CreateReply::default().content(format!("Resumed playback.")),
+                    )
+                    .await?;
+                }
                 None => {
                     ctx.say("Must provide a url/song query").await?;
                     return Ok(());

@@ -8,7 +8,7 @@ use shuttle_secrets::SecretStore;
 use shuttle_serenity::ShuttleSerenity;
 use songbird::{typemap::TypeMapKey, SerenityInit};
 
-use commands::{help, join, leave, now_playing, pause, play, queue};
+use commands::{ dequeue, help, join, leave, now_playing, pause, play, queue, skip};
 use utils::error::on_error;
 
 pub struct Data {}
@@ -55,6 +55,8 @@ async fn poise(#[shuttle_secrets::Secrets] secret_store: SecretStore) -> Shuttle
                 join::join(),
                 leave::leave(),
                 queue::queue(),
+                dequeue::dequeue(),
+                skip::skip(),
             ],
             on_error: |error| Box::pin(on_error(error)),
             ..Default::default()
