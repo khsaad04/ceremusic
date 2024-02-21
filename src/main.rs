@@ -8,7 +8,7 @@ use shuttle_secrets::SecretStore;
 use shuttle_serenity::ShuttleSerenity;
 use songbird::{typemap::TypeMapKey, SerenityInit};
 
-use commands::{ dequeue, help, join, leave, now_playing, pause, play, queue, skip};
+use commands::{dequeue, help, join, leave, now_playing, pause, play, queue, skip};
 use utils::error::on_error;
 
 pub struct Data {}
