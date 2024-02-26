@@ -1,21 +1,36 @@
 {
-  description = "ceremusic devshell";
+  description = "ceremusic devShell";
   inputs = {
-    nixpkgs = {
-      url = "github:nixos/nixpkgs/nixos-unstable";
-    };
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    rust-overlay.url = "github:oxalica/rust-overlay";
+    flake-utils.url = "github:numtide/flake-utils";
   };
-  outputs = {nixpkgs, ...}: let
-    system = "x86_64-linux";
-    pkgs = nixpkgs.legacyPackages.${system};
-  in {
-    devShells.x86_64-linux.default = pkgs.mkShell {
-      buildInputs = with pkgs; [yt-dlp libopus];
-      nativeBuildInputs = with pkgs; [
-        cmake
-        openssl
-        pkg-config
-      ];
-    };
-  };
+
+  outputs = {
+    nixpkgs,
+    rust-overlay,
+    flake-utils,
+    ...
+  }:
+    flake-utils.lib.eachDefaultSystem (
+      system: let
+        overlays = [(import rust-overlay)];
+        pkgs = import nixpkgs {
+          inherit system overlays;
+        };
+      in
+        with pkgs; {
+          devShells.default = mkShell {
+            buildInputs = [
+              pkg-config
+              gdb
+              yt-dlp
+              libopus
+              openssl
+              cmake
+              rust-bin.stable.latest.default
+            ];
+          };
+        }
+    );
 }
