@@ -14,7 +14,7 @@ pub async fn skip(ctx: Context<'_>) -> Result<(), Error> {
     let track_map = track.typemap().read().await;
     let metadata = track_map.get::<TrackMetaKey>().unwrap();
 
-    let queue = handler.queue().skip().unwrap();
+    handler.queue().skip().unwrap();
 
     ctx.say(format!("Skipped `{}`", metadata.title.as_ref().unwrap()))
         .await?;

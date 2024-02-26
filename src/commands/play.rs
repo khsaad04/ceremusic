@@ -54,9 +54,9 @@ pub async fn play(
     let query = match query {
         Some(query) => query,
         None => {
-            let _ = match handler.queue().current() {
+            match handler.queue().current() {
                 Some(track) => {
-                    track.play();
+                    let _ = track.play();
                     msg.edit(
                         ctx,
                         CreateReply::default().content(format!("Resumed playback.")),

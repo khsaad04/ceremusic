@@ -1,4 +1,3 @@
-use crate::commands::play::TrackMetaKey;
 use crate::{Context, Error};
 
 /// Remove a track from queue

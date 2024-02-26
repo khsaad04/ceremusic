@@ -32,6 +32,7 @@
         libopus
         openssl
         rustPkg
+        rust-analyzer-nightly
       ];
     };
   };
