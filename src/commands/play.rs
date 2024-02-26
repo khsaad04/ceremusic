@@ -59,7 +59,7 @@ pub async fn play(
                     let _ = track.play();
                     msg.edit(
                         ctx,
-                        CreateReply::default().content(format!("Resumed playback.")),
+                        CreateReply::default().content("Resumed playback.".to_string()),
                     )
                     .await?;
                 }
