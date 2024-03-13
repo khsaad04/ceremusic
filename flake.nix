@@ -30,10 +30,10 @@
         gdb
         yt-dlp
         libopus
-        openssl
         rustPkg
         rust-analyzer-nightly
       ];
+      buildInputs = with pkgs; [pkg-config openssl];
     };
   };
 }

@@ -12,9 +12,9 @@ features = ["aac", "mp3", "isomp4", "alac"]
 anyhow = "1.0.79"
 poise = "0.6.1"
 reqwest = "0.11.24"
-shuttle-runtime = "0.38.0"
-shuttle-secrets = "0.38.0"
-shuttle-serenity = "0.38.0"
+shuttle-runtime = "0.41.0"
+shuttle-secrets = "0.41.0"
+shuttle-serenity = "0.41.0"
 songbird = { git="https://github.com/serenity-rs/songbird", features = ["builtin-queue"] }
 tokio = "1.36.0"
 tracing = "0.1.40"
