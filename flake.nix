@@ -6,34 +6,38 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
-  outputs = {
-    nixpkgs,
-    fenix,
-    ...
-  }: let
-    system = "x86_64-linux";
-    toolchain = "stable";
-    overlays = [fenix.overlays.default];
-    pkgs = import nixpkgs {
-      inherit system overlays;
-    };
-    rustPkg = pkgs.fenix."${toolchain}".withComponents [
-      "cargo"
-      "clippy"
-      "rust-src"
-      "rustc"
-      "rustfmt"
-    ];
-  in {
-    devShells.x86_64-linux.default = pkgs.mkShell {
-      nativeBuildInputs = with pkgs; [
-        gdb
-        yt-dlp
-        libopus
-        rustPkg
-        rust-analyzer-nightly
+  outputs =
+    { nixpkgs
+    , fenix
+    , ...
+    }:
+    let
+      system = "x86_64-linux";
+      toolchain = "stable";
+      overlays = [ fenix.overlays.default ];
+      pkgs = import nixpkgs {
+        inherit system overlays;
+      };
+      rustPkg = pkgs.fenix."${toolchain}".withComponents [
+        "cargo"
+        "clippy"
+        "rust-src"
+        "rustc"
+        "rustfmt"
       ];
-      buildInputs = with pkgs; [pkg-config openssl];
+    in
+    {
+      devShells.${system}.default = pkgs.mkShell {
+        packages = [ pkgs.nil ];
+        nativeBuildInputs = with pkgs; [
+          gdb
+          yt-dlp
+          libopus
+          rustPkg
+          rust-analyzer-nightly
+        ];
+        buildInputs = with pkgs; [ pkg-config openssl ];
+      };
+      formatter.${system} = pkgs.nixpkgs-fmt;
     };
-  };
 }
