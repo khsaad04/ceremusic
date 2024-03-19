@@ -28,15 +28,16 @@
     in
     {
       devShells.${system}.default = pkgs.mkShell {
-        packages = [ pkgs.nil ];
-        nativeBuildInputs = with pkgs; [
+        packages = with pkgs;[
+          nil
           gdb
-          yt-dlp
-          libopus
           rustPkg
           rust-analyzer-nightly
+          yt-dlp
+          libopus
+          pkg-config
+          openssl
         ];
-        buildInputs = with pkgs; [ pkg-config openssl ];
       };
       formatter.${system} = pkgs.nixpkgs-fmt;
     };
