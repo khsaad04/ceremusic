@@ -8,10 +8,15 @@ pub async fn leave(ctx: Context<'_>) -> Result<(), Error> {
         .expect("Songbird Voice client placed in at initialisation.")
         .clone();
 
-    let has_handler = manager.get(ctx.guild_id().unwrap()).is_some();
+    let has_handler = manager
+        .get(ctx.guild_id().expect("Could not retrieve guild_id"))
+        .is_some();
 
     if has_handler {
-        if let Err(e) = manager.remove(ctx.guild_id().unwrap()).await {
+        if let Err(e) = manager
+            .remove(ctx.guild_id().expect("Could not retrieve guild_id"))
+            .await
+        {
             ctx.say(format!("Failed: {:?}", e)).await?;
         }
         ctx.say("Left voice channel").await?;

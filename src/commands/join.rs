@@ -3,10 +3,10 @@ use crate::{Context, Error};
 /// Join vc
 #[poise::command(prefix_command, slash_command)]
 pub async fn join(ctx: Context<'_>) -> Result<(), Error> {
-    let guild_id = ctx.guild_id().unwrap();
+    let guild_id = ctx.guild_id().expect("Could not retrieve guild_id");
     let channel_id = ctx
         .guild()
-        .unwrap()
+        .expect("Could not retrieve guild data")
         .voice_states
         .get(&ctx.author().id)
         .and_then(|voice_state| voice_state.channel_id);

@@ -20,10 +20,10 @@ pub async fn play(
     query: Option<String>,
 ) -> Result<(), Error> {
     let msg = ctx.say("Adding song...").await?;
-    let guild_id = ctx.guild_id().unwrap();
+    let guild_id = ctx.guild_id().expect("Could not retrieve guild_id");
     let channel_id = ctx
         .guild()
-        .unwrap()
+        .expect("Could not retrieve guild data")
         .voice_states
         .get(&ctx.author().id)
         .and_then(|voice_state| voice_state.channel_id);
@@ -94,7 +94,7 @@ pub async fn play(
         ctx,
         CreateReply::default().content(format!(
             "Added `{}` to queue.",
-            metadata.title.as_ref().unwrap()
+            metadata.title.as_ref().expect("Invalid reference")
         )),
     )
     .await?;
