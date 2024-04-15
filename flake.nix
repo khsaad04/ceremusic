@@ -8,23 +8,21 @@
     }:
     let
       system = "x86_64-linux";
-      pkgs = import nixpkgs {
-        inherit system
-          ;
-      };
+      pkgs = nixpkgs.legacyPackages.${system};
     in
     {
       devShells.${system}.default = pkgs.mkShell {
-        packages = with pkgs;[
-          nil
-          cargo
-          rustc
-          rust-analyzer
-          rustfmt
-          yt-dlp
-          libopus
-          pkg-config
-          openssl
+        packages = [
+          pkgs.nil
+          pkgs.cargo
+          pkgs.clippy
+          pkgs.rustc
+          pkgs.rustfmt
+          pkgs.rust-analyzer
+          pkgs.yt-dlp
+          pkgs.libopus
+          pkgs.pkg-config
+          pkgs.openssl
         ];
       };
       formatter.${system} = pkgs.nixpkgs-fmt;
