@@ -13,16 +13,11 @@
     {
       devShells.${system}.default = pkgs.mkShell {
         packages = [
-          pkgs.nil
           pkgs.cargo
           pkgs.clippy
           pkgs.rustc
           pkgs.rustfmt
           pkgs.rust-analyzer
-          pkgs.yt-dlp
-          pkgs.libopus
-          pkgs.pkg-config
-          pkgs.openssl
         ];
       };
       formatter.${system} = pkgs.nixpkgs-fmt;
