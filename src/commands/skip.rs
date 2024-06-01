@@ -1,7 +1,7 @@
 use crate::commands::play::TrackMetaKey;
 use crate::{Context, Error};
 
-/// Get current queue
+/// Skip current track
 #[poise::command(prefix_command, slash_command)]
 pub async fn skip(ctx: Context<'_>) -> Result<(), Error> {
     let guild_id = ctx.guild_id().expect("Could not retrieve guild_id");
