@@ -4,7 +4,7 @@ mod utils;
 use anyhow::Context as _;
 use poise::serenity_prelude as serenity;
 use reqwest::Client as HttpClient;
-use shuttle_secrets::SecretStore;
+use shuttle_runtime::SecretStore;
 use shuttle_serenity::ShuttleSerenity;
 use songbird::{typemap::TypeMapKey, SerenityInit};
 
@@ -22,7 +22,7 @@ impl TypeMapKey for HttpKey {
 }
 
 #[shuttle_runtime::main]
-async fn poise(#[shuttle_secrets::Secrets] secret_store: SecretStore) -> ShuttleSerenity {
+async fn poise(#[shuttle_runtime::Secrets] secret_store: SecretStore) -> ShuttleSerenity {
     if std::env::var("HOSTNAME")
         .unwrap_or_default()
         .contains("shuttle")
