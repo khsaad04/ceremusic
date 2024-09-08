@@ -29,7 +29,7 @@ async fn poise(#[shuttle_runtime::Secrets] secret_store: SecretStore) -> Shuttle
         && !std::process::Command::new("apt")
             .arg("install")
             .arg("-y")
-            .arg("yt-dlp")
+            .arg("youtube-dl")
             .status()
             .expect("failed to run apt")
             .success()
