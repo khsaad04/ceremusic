@@ -73,9 +73,9 @@ pub async fn play(
     };
 
     let src = if query.starts_with("http") {
-        YoutubeDl::new(http_client, query)
+        YoutubeDl::new_ytdl_like("./yt-dlp", http_client, query)
     } else {
-        YoutubeDl::new_search(http_client, query)
+        YoutubeDl::new_search_ytdl_like("./yt-dlp", http_client, query)
     };
 
     let mut input: Input = src.into();
