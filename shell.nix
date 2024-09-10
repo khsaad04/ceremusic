@@ -11,6 +11,6 @@ pkgs.mkShell {
     pkgs.openssl
     pkgs.pkg-config
     pkgs.libopus
-    pkgs.yt-dlp
+    pkgs.python3
   ];
 }
